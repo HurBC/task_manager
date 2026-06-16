@@ -20,6 +20,7 @@ public:
   Task() = default;
 
   bool mark_as_complete();
+  bool is_complete();
 
   friend std::ostream &operator<<(std::ostream &os, const Task &t) {
     std::string status_string =

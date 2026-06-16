@@ -1,13 +1,14 @@
+#include "cli/tm_cli.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include "tasks/task.hpp"
 #include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <ostream>
 #include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -15,8 +16,6 @@ int add_new_task(std::vector<Task> &vec, std::vector<std::string> &args);
 void help();
 void list_tasks(const std::vector<Task> &vec,
                 const std::vector<std::string> &args);
-
-enum class Command { Add, List, Edit, Delete, Help };
 
 static const std::unordered_map<std::string, Command> commands_map = {
     {"add", Command::Add},
@@ -26,6 +25,8 @@ static const std::unordered_map<std::string, Command> commands_map = {
     {"help", Command::Help}};
 
 int main(int argc, char *argv[]) {
+  // TaskManagerCli cli;
+
   std::vector<Task> tasks;
   nlohmann::json input_json;
 
@@ -147,18 +148,45 @@ int add_new_task(std::vector<Task> &vec, std::vector<std::string> &args) {
 
 void list_tasks(const std::vector<Task> &vec,
                 const std::vector<std::string> &args) {
+
   if (args.size() > 2) {
     std::cout << "This command takes 1 flag per usage" << std::endl;
 
     return;
   }
 
-  std::string flag = args.at(1);
+  if (args.size() > 1) {
+    std::vector<Task> filtered_tasks;
 
-  if (flag != "-a" || flag != "-c") {
-    std::cout << "The flag " << flag << "isn't a valid flag\n"
-              << "Please use -a or -c" << std::endl;
+    std::string flag = args.at(1);
 
+    if (flag != "-a" && flag != "-c") {
+      std::cout << "The flag " << flag << " isn't a valid flag\n"
+                << "Please use -a or -c" << std::endl;
+
+      return;
+    }
+
+    std::copy_if(vec.begin(), vec.end(), std::back_inserter(filtered_tasks),
+                 [flag](Task t) {
+                   bool is_complete = t.is_complete();
+
+                   return (flag == "-a") ? !is_complete : is_complete;
+                 });
+
+    if (filtered_tasks.empty()) {
+      std::string status = ((flag == "-a") ? "active" : "complete");
+
+      std::cout << "There's no tasks in " << status << " status" << std::endl;
+
+      return;
+    }
+
+    for (int i = 0; i < filtered_tasks.size(); i++) {
+      Task c_task = filtered_tasks.at(i);
+
+      std::cout << c_task;
+    }
     return;
   }
 
@@ -166,9 +194,6 @@ void list_tasks(const std::vector<Task> &vec,
     std::cout << "There's no tasks created" << std::endl;
 
     return;
-  }
-
-  if (flag == "-a") {
   }
 
   for (int i = 0; i < vec.size(); i++) {

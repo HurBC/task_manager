@@ -21,3 +21,4 @@ bool Task::mark_as_complete() {
 
   return true;
 }
+bool Task::is_complete() { return this->status == TaskStatus::COMPLETE; }

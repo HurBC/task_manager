@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(json)
 # ---------------------
 
 # Añadir el ejecutable
-add_executable(TaskManager src/main.cpp src/tasks/task.cpp)
+add_executable(TaskManager src/main.cpp src/tasks/task.cpp src/cli/tm_cli.cpp)
 
 # --- ENLAZAR LA LIBRERÍA ---
 # Esto le dice al compilador dónde están los headers y actualiza tu compile_commands.json
